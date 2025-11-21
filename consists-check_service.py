@@ -7,8 +7,8 @@ import io
 import re
 import os
 from rapidfuzz import process as rf_process, fuzz as rf_fuzz
-
 import spacy
+
 nlp = spacy.load("en_core_web_sm")
 
 app = FastAPI(title="Ingredient Analyzer")
@@ -77,8 +77,6 @@ def load_ingredient_db_from_csv(path: str):
                 "reason": r.get("reason", "")
             }
     return db
-
-
 
 def match_exact_db(token: str, db: Dict[str, Dict[str, Any]]):
     """Ищем прямое совпадение с базой (по name или aliases)."""
@@ -192,10 +190,6 @@ def analyze_text_composition(raw_text: str, db: Dict[str, Dict[str, Any]]):
 
     return found
 
-# ---------------------------
-# API endpoint
-# ---------------------------
-
 @app.post("/analyze")
 async def analyze(file: Optional[UploadFile] = File(None), text: Optional[str] = Form(None), use_ocr_lang: Optional[str] = Form("eng")):
     """
@@ -221,21 +215,31 @@ async def analyze(file: Optional[UploadFile] = File(None), text: Optional[str] =
         # Анализ
         issues = analyze_text_composition(raw_text, INGREDIENT_DB)
 
-        response = {
+        pretty_issues = [
+            {
+                "ingredient": issue["ingredient"],
+                "category": issue.get("category"),
+                "reason": issue.get("reason")
+            }
+            for issue in issues
+        ]
+
+        if not pretty_issues:
+            return JSONResponse(content={
+                "ok": True,
+                "raw_text_excerpt": raw_text[:200],
+                "issues_count": 0,
+                "issues": [],
+                "result": "Состав отличный! "
+            })
+
+        return JSONResponse(content={
             "ok": True,
             "raw_text_excerpt": raw_text[:200],
-            "issues_count": len(issues),
-            "issues": issues
-        }
-
-        if len(issues) == 0:
-            response["result"] = "Состав отличный!"
-        else:
-            response["result"] = "Некоторые ингредиенты могут не подойти"
-
-        return JSONResponse(content=response)
+            "issues_count": len(pretty_issues),
+            "issues": pretty_issues,
+            "result": "Некоторые ингредиенты могут не подойти"
+        })
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
-
-
