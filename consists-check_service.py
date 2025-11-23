@@ -243,3 +243,4 @@ async def analyze(file: Optional[UploadFile] = File(None), text: Optional[str] =
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+
