@@ -4,7 +4,7 @@ import base64
 import datetime
 from sys import stderr
 
-RABBIT_HOST = "localhost"
+RABBIT_HOST = "rabbitmq"
 REQUEST_QUEUE = "consistence.requests"
 RESPONSE_QUEUE = "consistence.responses"
 EXCHANGE = "consistence.exchange"
