@@ -2,7 +2,7 @@ import torch
 import timm
 import os
 
-MODEL_PATH = os.path.join("models", "C:/Users/Alina/curlylab-hair_ai/models/swa_convnext.pt")
+MODEL_PATH = os.path.join("models", "swa_convnext.pt")
 
 
 def load_porosity_model():
