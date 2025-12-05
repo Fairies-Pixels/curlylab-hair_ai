@@ -42,15 +42,10 @@ FUZZY_THRESHOLD = 85
 
 
 def normalize(text: str) -> str:
-    """Lowercase, strip, replace punctuation with spaces (keeps / -)."""
     text = text.lower()
-    # keep letters, digits, '/', '-', and spaces
     return re.sub(r"[^a-z0-9\/\-\s]", " ", text)
 
 def split_ingredients(text: str) -> List[str]:
-    """Разбивает длинный текст состава на вероятные ингредиенты.
-       Используем запятые, слеши, точки с запятой и перенесённые строки.
-    """
     text = text.replace("\n", ", ")
     parts = re.split(r"[,\;\/\(\)\[\]]+", text)
     parts = [p.strip() for p in parts if p.strip()]
@@ -62,7 +57,6 @@ def ocr_image_to_text(image_bytes: bytes, lang: str = "eng") -> str:
     return text
 
 def load_ingredient_db_from_csv(path: str):
-    """Опциональная функция — если у тебя есть CSV с колонками 'name','category','status','aliases','reason'."""
     import csv
     db = {}
     with open(path, newline='', encoding='utf-8') as f:
@@ -79,7 +73,6 @@ def load_ingredient_db_from_csv(path: str):
     return db
 
 def match_exact_db(token: str, db: Dict[str, Dict[str, Any]]):
-    """Ищем прямое совпадение с базой (по name или aliases)."""
     tk = normalize(token)
     for name, info in db.items():
         # check exact name
@@ -92,7 +85,6 @@ def match_exact_db(token: str, db: Dict[str, Dict[str, Any]]):
     return None
 
 def match_regex(token: str):
-    """Ищем по регулярным шаблонам BAD_PATTERNS, проверяем исключения."""
     tk = normalize(token)
     for category, patterns in BAD_PATTERNS.items():
         for pat in patterns:
@@ -105,19 +97,14 @@ def match_regex(token: str):
     return None
 
 def match_fuzzy(token: str, db: Dict[str, Dict[str, Any]], top_n: int = 3):
-    """Fuzzy match token to DB names/aliases using rapidfuzz."""
     choices = []
     for name, info in db.items():
-        # compare with name and aliases
         choices.append((name, name))
         for alias in info.get("aliases", []):
             if alias != name:
                 choices.append((name, alias))
-    # choices: list of (canonical_name, string_to_compare)
     strings = [s for _, s in choices]
-    # We use rapidfuzz to get best matches
     results = rf_process.extract(token, strings, scorer=rf_fuzz.QRatio, limit=top_n)
-    # results: list of (matched_string, score, index)
     best = None
     for matched_string, score, idx in results:
         if score >= FUZZY_THRESHOLD:
@@ -127,7 +114,6 @@ def match_fuzzy(token: str, db: Dict[str, Dict[str, Any]], top_n: int = 3):
     return None
 
 def analyze_text_composition(raw_text: str, db: Dict[str, Dict[str, Any]]):
-    """Главная логика проверки состава — возвращает список найденных проблем."""
     norm_text = normalize(raw_text)
     tokens = split_ingredients(norm_text)
     found = []
@@ -137,7 +123,6 @@ def analyze_text_composition(raw_text: str, db: Dict[str, Dict[str, Any]]):
         if len(tok) < 2:
             continue
 
-        # 1) exact by DB
         r = match_exact_db(tok, db)
         if r:
             cname = r["name"]
@@ -154,10 +139,8 @@ def analyze_text_composition(raw_text: str, db: Dict[str, Dict[str, Any]]):
                 seen_names.add(cname)
             continue
 
-        # 2) regex patterns
         r = match_regex(tok)
         if r:
-            # prepare a lightweight entry
             entry = {
                 "ingredient": tok,
                 "match_type": "pattern",
@@ -192,10 +175,6 @@ def analyze_text_composition(raw_text: str, db: Dict[str, Dict[str, Any]]):
 
 @app.post("/analyze")
 async def analyze(file: Optional[UploadFile] = File(None), text: Optional[str] = Form(None), use_ocr_lang: Optional[str] = Form("eng")):
-    """
-    Принимает либо файл (изображение состава) либо текст в form-data.
-    Возвращает JSON с detected issues (если есть).
-    """
     try:
         if not file and not text:
             raise HTTPException(status_code=400, detail="Нужно прислать файл или текст (form field 'text').")
@@ -206,13 +185,11 @@ async def analyze(file: Optional[UploadFile] = File(None), text: Optional[str] =
             raw_text = ocr_image_to_text(data, lang=use_ocr_lang)
 
         if text:
-            # если пришёл и файл, и текст — склеиваем
             raw_text = (raw_text + "\n" + text) if raw_text else text
 
         if not raw_text.strip():
             raise HTTPException(status_code=400, detail="После OCR / передачи текста не осталось текста для анализа.")
 
-        # Анализ
         issues = analyze_text_composition(raw_text, INGREDIENT_DB)
 
         pretty_issues = [
