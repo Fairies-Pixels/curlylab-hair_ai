@@ -148,7 +148,7 @@ def analyze_text_composition(raw_text: str, db: Dict[str, Dict[str, Any]]):
                 "score": r["score"],
                 "category": r["category"],
                 "status": "warning",
-                "reason": "Найден по шаблону (regex) — возможный нежелательный ингредиент"
+                "reason": "Возможный нежелательный ингредиент"
             }
             found.append(entry)
             continue
