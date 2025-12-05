@@ -18,9 +18,18 @@ def process_consistence_request(ch, method, properties, body):
         print("Get request")
         request_data = json.loads(body)
 
-        image_data = base64.b64decode(request_data['file'])
+        fileValue = request_data['file']
+        textValue = request_data['text']
 
-        raw_text = ocr_image_to_text(image_data)
+        raw_text = None
+
+        if fileValue != None:
+            print("Processing file", file=stderr)
+            image_data = base64.b64decode(request_data['file'])
+            raw_text = ocr_image_to_text(image_data)
+        elif textValue != None:
+            print("Processing text", file=stder)
+            raw_text = textValue
 
         if not raw_text.strip():
             response = {
