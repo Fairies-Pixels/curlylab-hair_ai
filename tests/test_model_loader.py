@@ -1,20 +1,18 @@
 import pytest
 from unittest.mock import patch, MagicMock
+import torch
+from models_loader import load_porosity_model
 
 import models_loader
 
 
 def test_model_file_missing():
-    """Ошибка если файл модели отсутствует"""
-
     with patch("os.path.exists", return_value=False):
         with pytest.raises(FileNotFoundError):
             models_loader.load_porosity_model()
 
 
 def test_model_creation_called():
-    """Проверяем что создается модель"""
-
     mock_model = MagicMock()
 
     with patch("os.path.exists", return_value=True), \
@@ -27,8 +25,6 @@ def test_model_creation_called():
 
 
 def test_model_creation_parameters():
-    """Проверяем параметры архитектуры"""
-
     mock_model = MagicMock()
 
     with patch("os.path.exists", return_value=True), \
@@ -45,7 +41,6 @@ def test_model_creation_parameters():
 
 
 def test_state_dict_loaded_into_model():
-    """Проверяем загрузку весов"""
 
     mock_model = MagicMock()
     checkpoint = {"model_state_dict": {"layer": "weights"}}
@@ -60,8 +55,6 @@ def test_state_dict_loaded_into_model():
 
 
 def test_model_set_to_eval():
-    """Модель переводится в eval режим"""
-
     mock_model = MagicMock()
 
     with patch("os.path.exists", return_value=True), \
@@ -71,19 +64,13 @@ def test_model_set_to_eval():
         models_loader.load_porosity_model()
 
         mock_model.eval.assert_called_once()
-import pytest
-from unittest.mock import patch, MagicMock
-import torch
-from models_loader import load_porosity_model
 
 def test_load_model_file_not_found():
-    """Проверка ошибки, если файл модели отсутствует"""
     with patch("models_loader.os.path.exists", return_value=False):
         with pytest.raises(FileNotFoundError):
             load_porosity_model()
 
 def test_load_model_returns_module():
-    """Проверка, что возвращается torch.nn.Module"""
     mock_model = MagicMock()
     mock_state_dict = {"model_state_dict": {}}
 
@@ -94,7 +81,6 @@ def test_load_model_returns_module():
         assert model == mock_model
 
 def test_load_model_calls_create_and_load_state_dict():
-    """Проверка, что create_model и load_state_dict вызываются"""
     mock_model = MagicMock()
     mock_state_dict = {"model_state_dict": {"key": "value"}}
 
