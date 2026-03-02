@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2897e830-383c-4d36-9a52-fb888a319a3d" name="Changes" comment="commit" />
+    <list default="true" id="2897e830-383c-4d36-9a52-fb888a319a3d" name="Changes" comment="commit:(">
+      <change beforePath="$PROJECT_DIR$/tests/test_ingredient_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ingredient_api.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,9 +20,9 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="3ALDoQ34tCXU20ygfQiKCZvXIYQ" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -32,6 +34,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "feature/consists-check-service",
     "last_opened_file_path": "C:/Users/302/curlylab-hair_ai"
   }
 }]]></component>
@@ -64,6 +67,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit" />
+    <MESSAGE value="commit:(" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit:(" />
   </component>
 </project>

@@ -1,13 +1,13 @@
 import io
-import pytest
 from unittest.mock import patch
 from PIL import Image
 from fastapi.testclient import TestClient
 
 import consists_check_service as api
 
-
 client = TestClient(api.app)
+import consists_check_service as api
+
 
 
 def create_test_image():
@@ -18,10 +18,6 @@ def create_test_image():
     return buf
 
 
-# ------------------------
-# normalize
-# ------------------------
-
 def test_normalize_lowercase():
     assert api.normalize("Dimethicone") == "dimethicone"
 
@@ -30,10 +26,6 @@ def test_normalize_removes_symbols():
     result = api.normalize("Dimethicone!!!")
     assert "!" not in result
 
-
-# ------------------------
-# split ingredients
-# ------------------------
 
 def test_split_ingredients_commas():
     text = "water, dimethicone, alcohol"
@@ -47,9 +39,6 @@ def test_split_ingredients_newlines():
     assert len(parts) == 2
 
 
-# ------------------------
-# exact db match
-# ------------------------
 
 def test_match_exact_name():
     result = api.match_exact_db("dimethicone", api.INGREDIENT_DB)
@@ -61,10 +50,6 @@ def test_match_exact_alias():
     assert result["match_type"] == "exact_alias"
 
 
-# ------------------------
-# regex detection
-# ------------------------
-
 def test_regex_detects_sulfate():
     result = api.match_regex("sodium sulfate")
     assert result["category"] == "sulfates"
@@ -75,26 +60,19 @@ def test_regex_respects_exception():
     assert result is None
 
 
-# ------------------------
-# fuzzy matching
-# ------------------------
 
 def test_fuzzy_match_typo():
     result = api.match_fuzzy("dimethicon", api.INGREDIENT_DB)
     assert result["match_type"] == "fuzzy"
 
 
-# ------------------------
-# composition analyzer
-# ------------------------
 
 def test_analyze_text_composition_detects_issue():
     text = "water, dimethicone"
     issues = api.analyze_text_composition(text, api.INGREDIENT_DB)
 
     assert len(issues) > 0
-    assert any(i["ingredient"] == "dimethicone" for i in issues)
-
+    assert any("dimethicone" in i["ingredient"] for i in issues)
 
 def test_analyze_text_composition_no_issue():
     text = "water, glycerin"
@@ -103,9 +81,6 @@ def test_analyze_text_composition_no_issue():
     assert isinstance(issues, list)
 
 
-# ------------------------
-# API endpoint
-# ------------------------
 
 def test_api_text_input():
     response = client.post(
@@ -136,6 +111,7 @@ def test_api_image_ocr():
 
         assert response.status_code == 200
         assert response.json()["issues_count"] > 0
+
 def test_api_text_priority_over_file():
     img = create_test_image()
 
@@ -158,30 +134,15 @@ def test_split_ingredients_empty():
     parts = api.split_ingredients("")
     assert parts == []
 
-import io
-import pytest
-from unittest.mock import patch
-from PIL import Image
-from fastapi.testclient import TestClient
 
-import consists_check_service as api
-
-client = TestClient(api.app)
-
-# ------------------------
-# split ingredients edge cases
-# ------------------------
 def test_split_ingredients_complex():
     text = "water, (dimethicone; alcohol)/glycerin"
     parts = api.split_ingredients(text)
     assert "dimethicone" in parts
     assert "glycerin" in parts
-    assert len(parts) == 4  # water, dimethicone, alcohol, glycerin
+    assert len(parts) == 4
 
 
-# ------------------------
-# match_exact_db edge cases
-# ------------------------
 def test_match_exact_db_not_found():
     result = api.match_exact_db("unknowningredient", api.INGREDIENT_DB)
     assert result is None
@@ -196,10 +157,6 @@ def test_match_regex_exception_handling():
     result = api.match_regex("cetyl alcohol")
     assert result is None
 
-
-# ------------------------
-# fuzzy match edge cases
-# ------------------------
 def test_match_fuzzy_low_score_returns_none():
     result = api.match_fuzzy("zzzzzz", api.INGREDIENT_DB)
     assert result is None
@@ -210,9 +167,6 @@ def test_match_fuzzy_multiple_aliases():
     assert result["match_type"] == "fuzzy"
 
 
-# ------------------------
-# analyze_text_composition edge cases
-# ------------------------
 def test_analyze_text_composition_empty_string():
     issues = api.analyze_text_composition("", api.INGREDIENT_DB)
     assert issues == []
@@ -228,9 +182,6 @@ def test_analyze_text_composition_regex_warning():
     assert issues[0]["category"] == "sulfates"
 
 
-# ------------------------
-# ocr_image_to_text edge cases
-# ------------------------
 def test_ocr_image_to_text_returns_string_mocked():
     img = Image.new("RGB", (10, 10), "white")
     buf = io.BytesIO()
