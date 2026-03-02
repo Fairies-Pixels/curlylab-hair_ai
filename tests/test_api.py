@@ -15,7 +15,6 @@ def create_test_image():
     buffer.seek(0)
     return buffer
 
-
 def test_predict_porosity_returns_class():
 
     mock_model = MagicMock()
@@ -30,7 +29,6 @@ def test_predict_porosity_returns_class():
 
         assert result in ["low", "high", "medium"]
 
-
 def test_predict_porosity_calls_model():
 
     mock_model = MagicMock()
@@ -44,7 +42,6 @@ def test_predict_porosity_calls_model():
         api.predict_porosity(img)
 
         assert mock_model.called
-
 
 def test_analyze_endpoint_success():
 
@@ -61,14 +58,11 @@ def test_analyze_endpoint_success():
         assert response.status_code == 200
         assert response.json()["porosity"] == "low"
 
-
 def test_analyze_rejects_wrong_filetype():
-
     response = client.post(
         "/analyze",
         files={"file": ("test.txt", b"hello", "text/plain")}
     )
-
     assert response.status_code == 400
     assert "изображением" in response.json()["detail"]
 

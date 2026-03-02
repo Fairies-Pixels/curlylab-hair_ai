@@ -39,7 +39,6 @@ def test_model_creation_parameters():
             num_classes=3
         )
 
-
 def test_state_dict_loaded_into_model():
 
     mock_model = MagicMock()
